@@ -63,3 +63,16 @@ test "moving average smooths with prefix windows" {
   assert_eq(smoothed.samples[2].value, 4.666666666666667)
   assert_eq(smoothed.samples[3].value, 7.333333333333333)
 }
+
+///|
+test "exponential smoothing follows alpha per mille" {
+  let series = @moonsignalkit.Series::new("signal", [
+    @moonsignalkit.Sample::new(0, 10.0),
+    @moonsignalkit.Sample::new(1, 20.0),
+    @moonsignalkit.Sample::new(2, 30.0),
+  ])
+  let smoothed = series.exponential_smoothing(500)
+  assert_eq(smoothed.samples[0].value, 10.0)
+  assert_eq(smoothed.samples[1].value, 15.0)
+  assert_eq(smoothed.samples[2].value, 22.5)
+}

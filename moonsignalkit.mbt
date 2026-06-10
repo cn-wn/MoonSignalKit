@@ -167,3 +167,34 @@ pub fn Series::moving_average(
   }
   Series::new(if name == "" { self.name + ".ma" } else { name }, smoothed)
 }
+
+///|
+pub fn Series::exponential_smoothing(
+  self : Series,
+  alpha_per_mille : Int,
+  name? : String = "",
+) -> Series {
+  if self.samples.length() == 0 {
+    return Series::new(if name == "" { self.name + ".ema" } else { name }, [])
+  }
+  let alpha = clamp_int(alpha_per_mille, 0, 1000).to_double() / 1000.0
+  let smoothed : Array[Sample] = []
+  let mut last = self.samples[0].value
+  smoothed.push(Sample::new(self.samples[0].time, last))
+  for i = 1; i < self.samples.length(); i = i + 1 {
+    last = alpha * self.samples[i].value + (1.0 - alpha) * last
+    smoothed.push(Sample::new(self.samples[i].time, last))
+  }
+  Series::new(if name == "" { self.name + ".ema" } else { name }, smoothed)
+}
+
+///|
+fn clamp_int(value : Int, min : Int, max : Int) -> Int {
+  if value < min {
+    min
+  } else if value > max {
+    max
+  } else {
+    value
+  }
+}
