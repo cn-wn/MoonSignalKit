@@ -238,6 +238,28 @@ pub fn Series::rate_of_change(self : Series, name? : String = "") -> Series {
 }
 
 ///|
+pub fn Series::peaks(self : Series, threshold : Double) -> Array[Sample] {
+  let peaks : Array[Sample] = []
+  if self.samples.length() < 3 {
+    return peaks
+  }
+  for i = 1; i < self.samples.length() - 1; i = i + 1 {
+    let value = self.samples[i].value
+    if value >= threshold &&
+      value > self.samples[i - 1].value &&
+      value > self.samples[i + 1].value {
+      peaks.push(self.samples[i])
+    }
+  }
+  peaks
+}
+
+///|
+pub fn Series::peak_count(self : Series, threshold : Double) -> Int {
+  self.peaks(threshold).length()
+}
+
+///|
 fn clamp_int(value : Int, min : Int, max : Int) -> Int {
   if value < min {
     min

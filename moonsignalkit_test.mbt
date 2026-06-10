@@ -101,3 +101,19 @@ test "rate of change divides by time delta" {
   assert_eq(rate.samples[0].value, 5.0)
   assert_eq(rate.samples[1].value, 4.0)
 }
+
+///|
+test "peak detection finds local maxima above threshold" {
+  let series = @moonsignalkit.Series::new("pulse", [
+    @moonsignalkit.Sample::new(0, 1.0),
+    @moonsignalkit.Sample::new(1, 5.0),
+    @moonsignalkit.Sample::new(2, 2.0),
+    @moonsignalkit.Sample::new(3, 7.0),
+    @moonsignalkit.Sample::new(4, 3.0),
+  ])
+  let peaks = series.peaks(4.0)
+  assert_eq(peaks.length(), 2)
+  assert_eq(peaks[0].time, 1)
+  assert_eq(peaks[1].value, 7.0)
+  assert_eq(series.peak_count(6.0), 1)
+}
