@@ -130,3 +130,15 @@ test "outlier detection uses z score threshold" {
   assert_eq(outliers.length(), 1)
   assert_eq(outliers[0].time, 3)
 }
+
+///|
+test "summary json includes stable statistic fields" {
+  let series = @moonsignalkit.Series::new("report", [
+    @moonsignalkit.Sample::new(0, 1.0),
+    @moonsignalkit.Sample::new(1, 3.0),
+  ])
+  let json = series.summary_json()
+  assert_true(json.contains("\"count\":2"))
+  assert_true(json.contains("\"mean\":2"))
+  assert_true(json.contains("\"std_dev\""))
+}

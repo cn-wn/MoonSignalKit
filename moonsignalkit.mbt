@@ -279,6 +279,16 @@ pub fn Series::outliers(self : Series, z_threshold : Double) -> Array[Sample] {
 }
 
 ///|
+pub fn Summary::to_json(self : Summary) -> String {
+  "{\"count\":\{self.count},\"min\":\{self.min},\"max\":\{self.max},\"mean\":\{self.mean},\"range\":\{self.range},\"variance\":\{self.variance},\"std_dev\":\{self.std_dev}}"
+}
+
+///|
+pub fn Series::summary_json(self : Series) -> String {
+  self.summary().to_json()
+}
+
+///|
 fn clamp_int(value : Int, min : Int, max : Int) -> Int {
   if value < min {
     min
