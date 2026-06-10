@@ -260,6 +260,25 @@ pub fn Series::peak_count(self : Series, threshold : Double) -> Int {
 }
 
 ///|
+pub fn Series::outliers(self : Series, z_threshold : Double) -> Array[Sample] {
+  let result : Array[Sample] = []
+  let summary = self.summary()
+  if summary.std_dev == 0.0 {
+    return result
+  }
+  let threshold = if z_threshold < 0.0 { -z_threshold } else { z_threshold }
+  for i = 0; i < self.samples.length(); i = i + 1 {
+    let delta = self.samples[i].value - summary.mean
+    let abs_delta = if delta < 0.0 { -delta } else { delta }
+    let z = abs_delta / summary.std_dev
+    if z >= threshold {
+      result.push(self.samples[i])
+    }
+  }
+  result
+}
+
+///|
 fn clamp_int(value : Int, min : Int, max : Int) -> Int {
   if value < min {
     min

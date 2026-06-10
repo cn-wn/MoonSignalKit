@@ -117,3 +117,16 @@ test "peak detection finds local maxima above threshold" {
   assert_eq(peaks[1].value, 7.0)
   assert_eq(series.peak_count(6.0), 1)
 }
+
+///|
+test "outlier detection uses z score threshold" {
+  let series = @moonsignalkit.Series::new("metric", [
+    @moonsignalkit.Sample::new(0, 10.0),
+    @moonsignalkit.Sample::new(1, 11.0),
+    @moonsignalkit.Sample::new(2, 9.0),
+    @moonsignalkit.Sample::new(3, 100.0),
+  ])
+  let outliers = series.outliers(1.5)
+  assert_eq(outliers.length(), 1)
+  assert_eq(outliers[0].time, 3)
+}
