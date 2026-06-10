@@ -34,3 +34,17 @@ test "series variance and standard deviation are deterministic" {
   assert_eq(series.variance(), 2.6666666666666665)
   assert_eq(series.summary().std_dev, series.variance().sqrt())
 }
+
+///|
+test "minmax normalization maps values to zero one range" {
+  let series = @moonsignalkit.Series::new("sensor", [
+    @moonsignalkit.Sample::new(0, 10.0),
+    @moonsignalkit.Sample::new(1, 20.0),
+    @moonsignalkit.Sample::new(2, 30.0),
+  ])
+  let normalized = series.normalize_minmax()
+  assert_eq(normalized.name, "sensor.normalized")
+  assert_eq(normalized.samples[0].value, 0.0)
+  assert_eq(normalized.samples[1].value, 0.5)
+  assert_eq(normalized.samples[2].value, 1.0)
+}

@@ -119,3 +119,26 @@ pub fn Series::variance(self : Series) -> Double {
   }
   total / self.samples.length().to_double()
 }
+
+///|
+pub fn Series::normalize_minmax(self : Series, name? : String = "") -> Series {
+  let min = self.min_value()
+  let range = self.range()
+  let normalized : Array[Sample] = []
+  for i = 0; i < self.samples.length(); i = i + 1 {
+    let value = if range == 0.0 {
+      0.0
+    } else {
+      (self.samples[i].value - min) / range
+    }
+    normalized.push(Sample::new(self.samples[i].time, value))
+  }
+  Series::new(
+    if name == "" {
+      self.name + ".normalized"
+    } else {
+      name
+    },
+    normalized,
+  )
+}
