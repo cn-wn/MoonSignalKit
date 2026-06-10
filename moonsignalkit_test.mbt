@@ -48,3 +48,18 @@ test "minmax normalization maps values to zero one range" {
   assert_eq(normalized.samples[1].value, 0.5)
   assert_eq(normalized.samples[2].value, 1.0)
 }
+
+///|
+test "moving average smooths with prefix windows" {
+  let series = @moonsignalkit.Series::new("noise", [
+    @moonsignalkit.Sample::new(0, 2.0),
+    @moonsignalkit.Sample::new(1, 4.0),
+    @moonsignalkit.Sample::new(2, 8.0),
+    @moonsignalkit.Sample::new(3, 10.0),
+  ])
+  let smoothed = series.moving_average(3)
+  assert_eq(smoothed.samples[0].value, 2.0)
+  assert_eq(smoothed.samples[1].value, 3.0)
+  assert_eq(smoothed.samples[2].value, 4.666666666666667)
+  assert_eq(smoothed.samples[3].value, 7.333333333333333)
+}
