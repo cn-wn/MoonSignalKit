@@ -1,6 +1,6 @@
-// import {
-//   "cn-wn/moonsignalkit" @signal,
-// }
+import {
+  "cn-wn/moonsignalkit" @signal,
+}
 
 options(
   "is-main": true,
