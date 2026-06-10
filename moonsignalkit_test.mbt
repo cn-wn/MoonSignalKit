@@ -76,3 +76,28 @@ test "exponential smoothing follows alpha per mille" {
   assert_eq(smoothed.samples[1].value, 15.0)
   assert_eq(smoothed.samples[2].value, 22.5)
 }
+
+///|
+test "difference returns adjacent value deltas" {
+  let series = @moonsignalkit.Series::new("counter", [
+    @moonsignalkit.Sample::new(0, 4.0),
+    @moonsignalkit.Sample::new(1, 9.0),
+    @moonsignalkit.Sample::new(2, 12.0),
+  ])
+  let diff = series.difference()
+  assert_eq(diff.length(), 2)
+  assert_eq(diff.samples[0].value, 5.0)
+  assert_eq(diff.samples[1].value, 3.0)
+}
+
+///|
+test "rate of change divides by time delta" {
+  let series = @moonsignalkit.Series::new("distance", [
+    @moonsignalkit.Sample::new(0, 0.0),
+    @moonsignalkit.Sample::new(2, 10.0),
+    @moonsignalkit.Sample::new(4, 18.0),
+  ])
+  let rate = series.rate_of_change()
+  assert_eq(rate.samples[0].value, 5.0)
+  assert_eq(rate.samples[1].value, 4.0)
+}

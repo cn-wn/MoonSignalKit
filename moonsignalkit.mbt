@@ -189,6 +189,55 @@ pub fn Series::exponential_smoothing(
 }
 
 ///|
+pub fn Series::difference(self : Series, name? : String = "") -> Series {
+  let diff : Array[Sample] = []
+  if self.samples.length() < 2 {
+    return Series::new(
+      if name == "" {
+        self.name + ".diff"
+      } else {
+        name
+      },
+      diff,
+    )
+  }
+  for i = 1; i < self.samples.length(); i = i + 1 {
+    diff.push(
+      Sample::new(
+        self.samples[i].time,
+        self.samples[i].value - self.samples[i - 1].value,
+      ),
+    )
+  }
+  Series::new(if name == "" { self.name + ".diff" } else { name }, diff)
+}
+
+///|
+pub fn Series::rate_of_change(self : Series, name? : String = "") -> Series {
+  let rates : Array[Sample] = []
+  if self.samples.length() < 2 {
+    return Series::new(
+      if name == "" {
+        self.name + ".rate"
+      } else {
+        name
+      },
+      rates,
+    )
+  }
+  for i = 1; i < self.samples.length(); i = i + 1 {
+    let dt = self.samples[i].time - self.samples[i - 1].time
+    let rate = if dt == 0 {
+      0.0
+    } else {
+      (self.samples[i].value - self.samples[i - 1].value) / dt.to_double()
+    }
+    rates.push(Sample::new(self.samples[i].time, rate))
+  }
+  Series::new(if name == "" { self.name + ".rate" } else { name }, rates)
+}
+
+///|
 fn clamp_int(value : Int, min : Int, max : Int) -> Int {
   if value < min {
     min
