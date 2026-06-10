@@ -21,4 +21,16 @@ test "series summary computes basic statistics" {
   assert_eq(summary.min, 2.0)
   assert_eq(summary.max, 6.0)
   assert_eq(summary.mean, 4.0)
+  assert_eq(summary.range, 4.0)
+}
+
+///|
+test "series variance and standard deviation are deterministic" {
+  let series = @moonsignalkit.Series::new("stable", [
+    @moonsignalkit.Sample::new(0, 2.0),
+    @moonsignalkit.Sample::new(1, 4.0),
+    @moonsignalkit.Sample::new(2, 6.0),
+  ])
+  assert_eq(series.variance(), 2.6666666666666665)
+  assert_eq(series.summary().std_dev, series.variance().sqrt())
 }

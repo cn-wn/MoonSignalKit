@@ -16,6 +16,9 @@ pub(all) struct Summary {
   min : Double
   max : Double
   mean : Double
+  range : Double
+  variance : Double
+  std_dev : Double
 } derive(Debug)
 
 ///|
@@ -86,10 +89,33 @@ pub fn Series::mean(self : Series) -> Double {
 
 ///|
 pub fn Series::summary(self : Series) -> Summary {
+  let variance = self.variance()
   {
     count: self.samples.length(),
     min: self.min_value(),
     max: self.max_value(),
     mean: self.mean(),
+    range: self.range(),
+    variance,
+    std_dev: variance.sqrt(),
   }
+}
+
+///|
+pub fn Series::range(self : Series) -> Double {
+  self.max_value() - self.min_value()
+}
+
+///|
+pub fn Series::variance(self : Series) -> Double {
+  if self.samples.length() < 2 {
+    return 0.0
+  }
+  let mean = self.mean()
+  let mut total = 0.0
+  for i = 0; i < self.samples.length(); i = i + 1 {
+    let delta = self.samples[i].value - mean
+    total = total + delta * delta
+  }
+  total / self.samples.length().to_double()
 }
