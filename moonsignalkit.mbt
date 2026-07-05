@@ -151,18 +151,13 @@ pub fn Series::moving_average(
 ) -> Series {
   let normalized_window = if window <= 1 { 1 } else { window }
   let smoothed : Array[Sample] = []
+  let mut total = 0.0
   for i = 0; i < self.samples.length(); i = i + 1 {
-    let start = if i + 1 < normalized_window {
-      0
-    } else {
-      i + 1 - normalized_window
+    total = total + self.samples[i].value
+    if i >= normalized_window {
+      total = total - self.samples[i - normalized_window].value
     }
-    let mut total = 0.0
-    let mut count = 0
-    for j = start; j <= i; j = j + 1 {
-      total = total + self.samples[j].value
-      count = count + 1
-    }
+    let count = if i + 1 < normalized_window { i + 1 } else { normalized_window }
     smoothed.push(Sample::new(self.samples[i].time, total / count.to_double()))
   }
   Series::new(if name == "" { self.name + ".ma" } else { name }, smoothed)
