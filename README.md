@@ -1,5 +1,5 @@
 # MoonSignalKit
 
-MoonSignalKit 是一个面向 MoonBit 的时间序列与信号处理基础库。
+MoonBit 流式遥测分析与变化检测基础库。
 
-完整说明见 [README.mbt.md](README.mbt.md)。
+完整文档见 [README.mbt.md](README.mbt.md)。

@@ -9,18 +9,35 @@ on:
 jobs:
   moonbit:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, js, wasm, wasm-gc]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup MoonBit
-        uses: moonbitlang/setup-moonbit@v1
+        uses: hustcer/setup-moonbit@v1
 
-      - name: Format check
-        run: moon fmt --check
+      - name: Check
+        run: moon check --target ${{ matrix.target }}
 
       - name: Run tests
-        run: moon test
+        run: moon test --target ${{ matrix.target }}
 
       - name: Run CLI demo
-        run: moon run cmd/main
+        if: matrix.target == 'native'
+        run: |
+          moon run cmd/main
+          moon run cmd/bench
+
+      - name: Verify package
+        if: matrix.target == 'native'
+        run: moon package --list
+
+      - name: Verify generated public API
+        if: matrix.target == 'native'
+        run: |
+          moon info
+          git diff --exit-code -- '*.mbti'

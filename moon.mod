@@ -11,14 +11,14 @@
 
 name = "cn-wn/moonsignalkit"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.mbt.md"
 
-repository = "https://github.com/cn-wn/-MoonSignalKit"
+repository = "https://github.com/cn-wn/MoonSignalKit"
 
 license = "Apache-2.0"
 
-keywords = [ "signal", "timeseries", "smoothing", "analytics" ]
+keywords = [ "signal", "timeseries", "streaming", "telemetry", "cusum", "anomaly-detection" ]
 
-description = "A MoonBit time-series and signal processing toolkit."
+description = "Streaming telemetry statistics and change detection for MoonBit."

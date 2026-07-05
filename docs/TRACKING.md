@@ -1,33 +1,17 @@
 # 公开开发跟踪
 
-MoonSignalKit 按公开仓库持续开发方式推进，核心证据包括提交记录、Issue、Pull Request、CHANGELOG、ROADMAP 和 CI。
+MoonSignalKit 通过公开提交、Issue、Pull Request、CHANGELOG、路线图和 CI 保持
+开发过程可追踪。
 
-## 当前提交主题
+当前里程碑：
 
-- 基础骨架与仓库元数据
-- 方差与标准差统计
-- Min-Max 归一化
-- 移动平均平滑
-- 指数平滑
-- 差分与变化率
-- 局部峰值检测
-- Z-Score 异常点检测
-- 统计摘要 JSON 导出
-- CLI 演示
-- CI 与协作模板
-- README、路线图和更新日志
+1. `0.1.0`：批量时间序列统计与基础检测。
+2. `0.2.0`：在线统计、CUSUM 变化检测与多后端验收。
+3. `0.3.0`：稳健在线分位数和不规则时间序列处理。
 
-## 后续工单建议
+每项新增算法应同时提供：
 
-1. 支持中位数和分位数
-2. 支持滚动窗口摘要
-3. 支持 Hampel 异常检测
-4. 增加 CSV 导入导出
-5. 增加 WebAssembly 示例
-
-## 合并请求建议
-
-- `feat/rolling-summary`
-- `feat/median-percentile`
-- `feat/hampel-filter`
-- `io/csv-series`
+- 明确的复杂度和参数语义；
+- 确定性正常、异常和边界测试；
+- 与已有能力或社区项目的差异说明；
+- CHANGELOG 和公开 API 更新。

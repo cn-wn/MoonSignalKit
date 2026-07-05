@@ -1,0 +1,95 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "cn-wn/moonsignalkit"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) enum ChangeDirection {
+  Rising
+  Falling
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ChangePoint {
+  sample : Sample
+  direction : ChangeDirection
+  magnitude : Double
+  observation : Int
+} derive(@debug.Debug)
+pub fn ChangePoint::to_json(Self) -> String
+
+pub(all) struct CusumDetector {
+  target : Double
+  drift : Double
+  threshold : Double
+  mut positive_sum : Double
+  mut negative_sum : Double
+  mut observations : Int
+} derive(@debug.Debug)
+pub fn CusumDetector::new(Double, Double, Double) -> Self
+pub fn CusumDetector::push(Self, Sample) -> ChangePoint?
+pub fn CusumDetector::reset_evidence(Self) -> Unit
+
+pub(all) struct OnlineMoments {
+  mut count : Int
+  mut mean : Double
+  mut m2 : Double
+  mut min : Double
+  mut max : Double
+} derive(@debug.Debug)
+pub fn OnlineMoments::new() -> Self
+pub fn OnlineMoments::push(Self, Double) -> Unit
+pub fn OnlineMoments::std_dev(Self) -> Double
+pub fn OnlineMoments::summary(Self) -> Summary
+pub fn OnlineMoments::variance(Self) -> Double
+
+pub(all) struct Sample {
+  time : Int
+  value : Double
+} derive(@debug.Debug)
+pub fn Sample::new(Int, Double) -> Self
+
+pub(all) struct Series {
+  name : String
+  samples : Array[Sample]
+} derive(@debug.Debug)
+pub fn Series::difference(Self, name? : String) -> Self
+pub fn Series::exponential_smoothing(Self, Int, name? : String) -> Self
+pub fn Series::is_empty(Self) -> Bool
+pub fn Series::length(Self) -> Int
+pub fn Series::max_value(Self) -> Double
+pub fn Series::mean(Self) -> Double
+pub fn Series::min_value(Self) -> Double
+pub fn Series::moving_average(Self, Int, name? : String) -> Self
+pub fn Series::new(String, Array[Sample]) -> Self
+pub fn Series::normalize_minmax(Self, name? : String) -> Self
+pub fn Series::outliers(Self, Double) -> Array[Sample]
+pub fn Series::peak_count(Self, Double) -> Int
+pub fn Series::peaks(Self, Double) -> Array[Sample]
+pub fn Series::range(Self) -> Double
+pub fn Series::rate_of_change(Self, name? : String) -> Self
+pub fn Series::sum(Self) -> Double
+pub fn Series::summary(Self) -> Summary
+pub fn Series::summary_json(Self) -> String
+pub fn Series::variance(Self) -> Double
+
+pub(all) struct Summary {
+  count : Int
+  min : Double
+  max : Double
+  mean : Double
+  range : Double
+  variance : Double
+  std_dev : Double
+} derive(@debug.Debug)
+pub fn Summary::to_json(Self) -> String
+
+// Type aliases
+
+// Traits
+
