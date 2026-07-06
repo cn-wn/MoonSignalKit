@@ -42,7 +42,11 @@ pub fn OnlineMoments::push(self : OnlineMoments, value : Double) -> Unit {
 
 ///|
 pub fn OnlineMoments::variance(self : OnlineMoments) -> Double {
-  if self.count < 2 { 0.0 } else { self.m2 / self.count.to_double() }
+  if self.count < 2 {
+    0.0
+  } else {
+    self.m2 / self.count.to_double()
+  }
 }
 
 ///|
@@ -56,10 +60,22 @@ pub fn OnlineMoments::summary(self : OnlineMoments) -> Summary {
   let variance = self.variance()
   {
     count: self.count,
-    min: if self.count == 0 { 0.0 } else { self.min },
-    max: if self.count == 0 { 0.0 } else { self.max },
+    min: if self.count == 0 {
+      0.0
+    } else {
+      self.min
+    },
+    max: if self.count == 0 {
+      0.0
+    } else {
+      self.max
+    },
     mean: self.mean,
-    range: if self.count == 0 { 0.0 } else { self.max - self.min },
+    range: if self.count == 0 {
+      0.0
+    } else {
+      self.max - self.min
+    },
     variance,
     std_dev: variance.sqrt(),
   }
@@ -118,14 +134,8 @@ pub fn CusumDetector::push(
 ) -> ChangePoint? {
   self.observations = self.observations + 1
   let centered = sample.value - self.target
-  self.positive_sum = max_double(
-    0.0,
-    self.positive_sum + centered - self.drift,
-  )
-  self.negative_sum = min_double(
-    0.0,
-    self.negative_sum + centered + self.drift,
-  )
+  self.positive_sum = max_double(0.0, self.positive_sum + centered - self.drift)
+  self.negative_sum = min_double(0.0, self.negative_sum + centered + self.drift)
   if self.positive_sum >= self.threshold {
     let magnitude = self.positive_sum
     self.reset_evidence()
@@ -167,15 +177,27 @@ pub fn ChangePoint::to_json(self : ChangePoint) -> String {
 
 ///|
 fn abs_double(value : Double) -> Double {
-  if value < 0.0 { -value } else { value }
+  if value < 0.0 {
+    -value
+  } else {
+    value
+  }
 }
 
 ///|
 fn min_double(a : Double, b : Double) -> Double {
-  if a < b { a } else { b }
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
 
 ///|
 fn max_double(a : Double, b : Double) -> Double {
-  if a > b { a } else { b }
+  if a > b {
+    a
+  } else {
+    b
+  }
 }

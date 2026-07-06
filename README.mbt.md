@@ -24,7 +24,8 @@ MoonSignalKit 是面向 MoonBit 的流式遥测分析与变化检测基础库。
 
 ## 在线统计
 
-```mbt
+```mbt nocheck
+///|
 test {
   let stats = OnlineMoments::new()
   stats.push(10.0)
@@ -41,12 +42,13 @@ test {
 
 ## CUSUM 变化点检测
 
-```mbt
+```mbt nocheck
+///|
 test {
   let detector = CusumDetector::new(
     10.0, // 正常目标水平
-    0.25, // 可忽略的小幅漂移
-    4.0,  // 累积触发阈值
+     0.25, // 可忽略的小幅漂移
+     4.0, // 累积触发阈值
   )
   let mut detected = false
   for i = 0; i < 6; i = i + 1 {

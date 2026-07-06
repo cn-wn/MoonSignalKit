@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 - 2026-07-06
+
+### Changed
+
+- 统一最新 MoonBit 工具链格式。
+- 补充正式 GitLink 仓库地址并完成双分支同步。
+- 重新验证 JavaScript、Wasm、Wasm-GC 测试与发布包。
+
 ## 0.2.0 - 2026-07-06
 
 ### Added
@@ -12,7 +20,7 @@
 
 ### Changed
 
-- 移动平均由 O(n × window) 优化为 O(n) 滚动窗口实现。
+- 移动平均由 `O(n * window)` 优化为 `O(n)` 滚动窗口。
 - 仓库地址统一为 `cn-wn/MoonSignalKit`。
 - 修复 README、路线图和跟踪文档的中文乱码。
 

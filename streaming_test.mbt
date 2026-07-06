@@ -31,9 +31,7 @@ test "cusum ignores bounded noise" {
   let detector = @moonsignalkit.CusumDetector::new(10.0, 0.5, 5.0)
   let values = [10.2, 9.8, 10.1, 9.9, 10.3, 9.7]
   for i = 0; i < values.length(); i = i + 1 {
-    assert_true(
-      detector.push(@moonsignalkit.Sample::new(i, values[i])) is None,
-    )
+    assert_true(detector.push(@moonsignalkit.Sample::new(i, values[i])) is None)
   }
 }
 

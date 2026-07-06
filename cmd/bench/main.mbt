@@ -6,9 +6,9 @@ fn main {
   let detector = @signal.CusumDetector::new(100.0, 0.2, 8.0)
   let mut changes = 0
   for i = 0; i < count; i = i + 1 {
-    let phase = (i / 25000) % 2
+    let phase = i / 25000 % 2
     let baseline = if phase == 0 { 100.0 } else { 101.0 }
-    let noise = ((i * 17) % 9 - 4).to_double() / 10.0
+    let noise = (i * 17 % 9 - 4).to_double() / 10.0
     let value = baseline + noise
     stats.push(value)
     match detector.push(@signal.Sample::new(i, value)) {
@@ -17,7 +17,5 @@ fn main {
     }
   }
   println("scenario,samples,retained_samples,mean,variance,changes")
-  println(
-    "stream-100k,\{count},0,\{stats.mean},\{stats.variance()},\{changes}",
-  )
+  println("stream-100k,\{count},0,\{stats.mean},\{stats.variance()},\{changes}")
 }

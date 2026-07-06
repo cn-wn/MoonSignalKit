@@ -157,7 +157,11 @@ pub fn Series::moving_average(
     if i >= normalized_window {
       total = total - self.samples[i - normalized_window].value
     }
-    let count = if i + 1 < normalized_window { i + 1 } else { normalized_window }
+    let count = if i + 1 < normalized_window {
+      i + 1
+    } else {
+      normalized_window
+    }
     smoothed.push(Sample::new(self.samples[i].time, total / count.to_double()))
   }
   Series::new(if name == "" { self.name + ".ma" } else { name }, smoothed)
