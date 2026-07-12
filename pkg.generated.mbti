@@ -23,6 +23,13 @@ pub(all) struct ChangePoint {
 } derive(@debug.Debug)
 pub fn ChangePoint::to_json(Self) -> String
 
+pub(all) enum CsvError {
+  EmptyInput
+  MissingColumns(Int)
+  InvalidTime(Int)
+  InvalidValue(Int)
+} derive(Eq, @debug.Debug)
+
 pub(all) struct CusumDetector {
   target : Double
   drift : Double
@@ -34,6 +41,23 @@ pub(all) struct CusumDetector {
 pub fn CusumDetector::new(Double, Double, Double) -> Self
 pub fn CusumDetector::push(Self, Sample) -> ChangePoint?
 pub fn CusumDetector::reset_evidence(Self) -> Unit
+
+pub(all) struct EwmaFilter {
+  alpha : Double
+  mut has_value : Bool
+  mut value : Double
+} derive(@debug.Debug)
+pub fn EwmaFilter::new(Int) -> Self
+pub fn EwmaFilter::push(Self, Sample) -> Sample
+pub fn EwmaFilter::reset(Self) -> Unit
+pub fn EwmaFilter::value(Self) -> Double?
+
+pub(all) struct MedianFilter {
+  window : RollingWindow
+} derive(@debug.Debug)
+pub fn MedianFilter::new(Int) -> Self
+pub fn MedianFilter::push(Self, Sample) -> Sample
+pub fn MedianFilter::reset(Self) -> Unit
 
 pub(all) struct OnlineMoments {
   mut count : Int
@@ -48,6 +72,23 @@ pub fn OnlineMoments::std_dev(Self) -> Double
 pub fn OnlineMoments::summary(Self) -> Summary
 pub fn OnlineMoments::variance(Self) -> Double
 
+pub(all) struct RollingWindow {
+  capacity : Int
+  values : Array[Sample]
+  mut size : Int
+  mut next : Int
+} derive(@debug.Debug)
+pub fn RollingWindow::capacity(Self) -> Int
+pub fn RollingWindow::is_ready(Self) -> Bool
+pub fn RollingWindow::length(Self) -> Int
+pub fn RollingWindow::median(Self) -> Double
+pub fn RollingWindow::new(Int) -> Self
+pub fn RollingWindow::push(Self, Sample) -> Unit
+pub fn RollingWindow::quantile(Self, Int) -> Double
+pub fn RollingWindow::reset(Self) -> Unit
+pub fn RollingWindow::samples(Self) -> Array[Sample]
+pub fn RollingWindow::summary(Self) -> Summary
+
 pub(all) struct Sample {
   time : Int
   value : Double
@@ -60,6 +101,7 @@ pub(all) struct Series {
 } derive(@debug.Debug)
 pub fn Series::difference(Self, name? : String) -> Self
 pub fn Series::exponential_smoothing(Self, Int, name? : String) -> Self
+pub fn Series::from_csv(String, String, has_header? : Bool) -> Result[Self, CsvError]
 pub fn Series::is_empty(Self) -> Bool
 pub fn Series::length(Self) -> Int
 pub fn Series::max_value(Self) -> Double
@@ -76,6 +118,7 @@ pub fn Series::rate_of_change(Self, name? : String) -> Self
 pub fn Series::sum(Self) -> Double
 pub fn Series::summary(Self) -> Summary
 pub fn Series::summary_json(Self) -> String
+pub fn Series::to_csv(Self) -> String
 pub fn Series::variance(Self) -> Double
 
 pub(all) struct Summary {

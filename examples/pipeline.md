@@ -1,28 +1,36 @@
-# MoonSignalKit Pipeline Example
+# Telemetry pipeline
 
-批量分析可以将归一化、平滑、变化率和异常检测组合成数据处理流水线：
+This runnable-style pipeline shows the intended production composition: import
+portable telemetry, suppress isolated spikes, inspect a bounded recent window,
+and detect sustained baseline shifts. It works unchanged on Native, JS, Wasm,
+and Wasm-GC because the library has no platform I/O dependency.
 
-```moonbit
-let normalized = series.normalize_minmax()
-let smoothed = normalized.moving_average(5)
-let rate = smoothed.rate_of_change()
-let peaks = smoothed.peaks(0.8)
-let outliers = series.outliers(2.0)
-```
-
-持续遥测则使用不保存历史的状态对象：
-
-```moonbit
-let stats = OnlineMoments::new()
-let detector = CusumDetector::new(50.0, 0.2, 6.0)
-
-for sample in incoming_samples {
-  stats.push(sample.value)
-  match detector.push(sample) {
-    Some(change) => handle_change(change)
-    None => ()
+```mbt nocheck
+///|
+test {
+  let csv = "time,value\n0,20.0\n1,20.2\n2,80.0\n3,20.4"
+  let series = @cn_wn/moonsignalkit.Series::from_csv("temperature", csv)
+  match series {
+    Ok(readings) => {
+      let median = @cn_wn/moonsignalkit.MedianFilter::new(3)
+      let window = @cn_wn/moonsignalkit.RollingWindow::new(60)
+      let changes = @cn_wn/moonsignalkit.CusumDetector::new(20.0, 0.2, 4.0)
+      for i = 0; i < readings.length(); i = i + 1 {
+        let cleaned = median.push(readings.samples[i])
+        window.push(cleaned)
+        match changes.push(cleaned) {
+          Some(event) => println(event.to_json())
+          None => ()
+        }
+      }
+      println("p95=\{window.quantile(950)}")
+    }
+    Err(error) => println(error)
   }
 }
 ```
 
-典型场景包括传感器读数、请求延迟、CPU 负载、能耗曲线和设备健康监测。
+The CSV reader intentionally accepts the portable two-column `time,value`
+format. It reports malformed rows instead of silently treating bad telemetry as
+zero. Quoted CSV dialects and file/network I/O remain an integration-layer
+responsibility so the MoonBit core stays portable.

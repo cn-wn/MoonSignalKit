@@ -7,6 +7,29 @@ on:
     branches: ["main"]
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup MoonBit
+        uses: hustcer/setup-moonbit@v1
+
+      - name: Check all supported backends
+        run: moon check --target all
+
+      # Current MoonBit releases use --check for a non-mutating formatting gate.
+      - name: Verify formatting
+        run: moon fmt --check
+
+      # moon info has no deny-warn flag in the current CLI. A clean diff makes
+      # generated public interfaces an explicit, reviewable contract.
+      - name: Verify generated public API
+        run: |
+          moon info
+          git diff --exit-code -- '*.mbti'
+
   moonbit:
     runs-on: ubuntu-latest
     strategy:
@@ -20,9 +43,6 @@ jobs:
       - name: Setup MoonBit
         uses: hustcer/setup-moonbit@v1
 
-      - name: Check
-        run: moon check --target ${{ matrix.target }}
-
       - name: Run tests
         run: moon test --target ${{ matrix.target }}
 
@@ -35,9 +55,3 @@ jobs:
       - name: Verify package
         if: matrix.target == 'native'
         run: moon package --list
-
-      - name: Verify generated public API
-        if: matrix.target == 'native'
-        run: |
-          moon info
-          git diff --exit-code -- '*.mbti'
