@@ -23,4 +23,3 @@ cross-machine latency claim. It deliberately avoids fabricated milliseconds or
 backend comparisons. Execute the same command under `moon run --target js`,
 `moon run --target wasm`, or `moon run --target wasm-gc` when collecting
 environment-specific measurements.
-
