@@ -1,74 +1,98 @@
 # MoonSignalKit
 
-MoonSignalKit is a MoonBit-native, dependency-light time-series and streaming
-telemetry analysis library. It is designed for sensor telemetry, device health,
-application metrics, edge computing, and WebAssembly dashboards: one API works
-on Native, JavaScript, Wasm, and Wasm-GC.
+MoonSignalKit is a MoonBit-native library for streaming telemetry and compact
+time-series analysis. It is intended for device metrics, sensor pipelines,
+service health signals, edge processing, and WebAssembly monitoring views.
+The same dependency-free API runs on Native, JavaScript, Wasm, and Wasm-GC.
 
-## Why it matters to MoonBit
+## Why this library exists
 
-MoonBit has portable collection and numeric primitives, but it does not provide
-a domain library for bounded telemetry windows, online moments, robust filtering,
-change detection, and portable telemetry interchange. MoonSignalKit fills that
-gap without filesystem, network, browser, or FFI dependencies, so the same core
-can run beside an edge device, in a server-side simulation, or in a WebAssembly
-monitoring view.
+MoonBit provides portable numeric and collection primitives, but application
+authors still need bounded windows, online statistics, robust smoothing,
+timestamp-quality checks, and sustained-change detection. MoonSignalKit turns
+those recurring pieces into a typed, tested library rather than requiring every
+application to reimplement them.
 
-## Production-oriented capabilities
+## Install
 
-- Batch series operations: summaries, normalization, moving average, EMA,
-  difference, rate of change, peaks, and Z-score outliers.
-- Constant-memory streaming: numerically stable Welford online moments and
-  two-sided CUSUM change-point events.
-- Bounded rolling windows: chronological eviction, stable summaries, exact
-  nearest-rank quantiles, and median.
-- Streaming filters: O(1)-memory EWMA and bounded median spike suppression.
-- Portable `time,value` CSV import/export with explicit malformed-input errors.
-- Deterministic CLI scenario and 100k-sample operation-count benchmark.
+Add the published package to a MoonBit project:
 
-## Quick start
+```bash
+moon add cn-wn/moonsignalkit
+```
+
+Then import it from the package that consumes it:
+
+```mbt check
+import {
+  "cn-wn/moonsignalkit" @signal,
+}
+```
+
+## Minimal call
+
+This example keeps the newest three samples and asks for the median. It is a
+complete black-box test body that can be copied into a consuming package.
 
 ```mbt check
 ///|
 test {
-  let window = @cn_wn/moonsignalkit.RollingWindow::new(5)
-  window.push(@cn_wn/moonsignalkit.Sample::new(0, 42.0))
-  window.push(@cn_wn/moonsignalkit.Sample::new(1, 43.0))
+  let window = @signal.RollingWindow::new(3)
+  window.push(@signal.Sample::new(100, 41.0))
+  window.push(@signal.Sample::new(101, 43.0))
+  window.push(@signal.Sample::new(102, 42.0))
   assert_eq(window.median(), 42.0)
 }
 ```
 
-## Runnable examples and benchmark
+## Production-oriented capabilities
+
+- Batch series analysis: summaries, normalization, moving average, EMA,
+  difference, rate of change, peaks, and Z-score outliers.
+- Bounded rolling windows with chronological eviction, exact nearest-rank
+  quantiles, median, and stable summaries.
+- Constant-memory Welford online moments and two-sided CUSUM level-shift
+  detection for unbounded streams.
+- EWMA smoothing and bounded median filtering for noisy measurements.
+- `TimestampMonitor` for deterministic late-sample and sampling-gap detection;
+  late arrivals never move the accepted timing baseline backwards.
+- Portable `time,value` CSV import/export with explicit malformed-input errors.
+
+## Runnable examples
+
+The repository contains a deterministic telemetry walkthrough and a
+100,000-sample operation-count benchmark:
 
 ```bash
-moon run cmd/main       # sensor/metric analysis walkthrough
-moon run cmd/bench      # deterministic 100,000-sample streaming scenario
-moon test --target js   # JavaScript backend verification (requires Node)
+moon run cmd/main
+moon run cmd/bench
 ```
 
-See [examples/pipeline.md](examples/pipeline.md) for a telemetry pipeline that
-combines CSV, filters, rolling quantiles, and CUSUM.
+The benchmark intentionally retains a bounded 256-sample rolling window. Its
+`retained_samples` column is therefore `256`, while online statistics and CUSUM
+remain constant-memory. See [examples/pipeline.md](examples/pipeline.md) and
+[benchmark notes](docs/BENCHMARK.md) for the reproducible scenario.
 
-## Quality gates
+## Verification
 
 ```bash
-moon check --target all
 moon fmt --check
+moon check --deny-warn --target all
 moon info && git diff --exit-code -- '*.mbti'
-moon test --target wasm
+moon test --deny-warn --target all
 ```
 
-Older contest feedback mentions `moon fmt --deny-warn` and
-`moon info --deny-warn`. The current MoonBit CLI (`moon 0.1.20260522`) no
-longer accepts those flags: `moon fmt --check` is the non-mutating format gate,
-while `moon info` followed by a clean generated-interface diff is the supported
-public-API gate. CI uses exactly these current commands.
+MoonBit 0.10.4 no longer accepts `moon fmt --deny-warn` or
+`moon info --deny-warn`. The non-mutating equivalents above are used locally;
+CI detects and uses those flags on toolchains that still provide them.
 
-## Scope and related work
+## Scope
 
-This is a numeric telemetry library, not a full audio DSP engine, FFT suite,
-reactive UI signal library, or platform I/O framework. See
-[README.mbt.md](README.mbt.md), [related work](docs/RELATED_WORK.md), and the
-[acceptance evidence](docs/ACCEPTANCE.md) for details.
+MoonSignalKit is not an audio DSP engine, FFT suite, reactive UI framework, or
+platform I/O layer. It focuses on portable numerical telemetry primitives that
+applications can compose with their own transports and storage. Related work,
+license, and acceptance evidence are documented in
+[README.mbt.md](README.mbt.md), [docs/RELATED_WORK.md](docs/RELATED_WORK.md),
+and [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
 
 Licensed under [Apache-2.0](LICENSE).

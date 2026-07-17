@@ -132,6 +132,22 @@ pub(all) struct Summary {
 } derive(@debug.Debug)
 pub fn Summary::to_json(Self) -> String
 
+pub(all) struct TimestampMonitor {
+  max_gap : Int
+  mut last_time : Int?
+} derive(@debug.Debug)
+pub fn TimestampMonitor::new(Int) -> Self
+pub fn TimestampMonitor::observe(Self, Sample) -> TimingObservation
+pub fn TimestampMonitor::reset(Self) -> Unit
+
+pub(all) struct TimingObservation {
+  previous_time : Int?
+  time : Int
+  delta : Int
+  is_late : Bool
+  is_gap : Bool
+} derive(@debug.Debug)
+
 // Type aliases
 
 // Traits

@@ -27,6 +27,21 @@ test "online moments handle empty and single streams" {
 }
 
 ///|
+test "timestamp monitor reports gaps without accepting late samples as a new baseline" {
+  let monitor = @moonsignalkit.TimestampMonitor::new(10)
+  let first = monitor.observe(@moonsignalkit.Sample::new(100, 1.0))
+  assert_false(first.is_late)
+  let gap = monitor.observe(@moonsignalkit.Sample::new(115, 2.0))
+  assert_eq(gap.delta, 15)
+  assert_true(gap.is_gap)
+  let late = monitor.observe(@moonsignalkit.Sample::new(110, 3.0))
+  assert_true(late.is_late)
+  let next = monitor.observe(@moonsignalkit.Sample::new(120, 4.0))
+  assert_eq(next.delta, 5)
+  assert_false(next.is_gap)
+}
+
+///|
 test "cusum ignores bounded noise" {
   let detector = @moonsignalkit.CusumDetector::new(10.0, 0.5, 5.0)
   let values = [10.2, 9.8, 10.1, 9.9, 10.3, 9.7]

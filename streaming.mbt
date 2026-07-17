@@ -82,6 +82,68 @@ pub fn OnlineMoments::summary(self : OnlineMoments) -> Summary {
 }
 
 ///|
+/// Timing quality observed while accepting one telemetry sample.
+pub(all) struct TimingObservation {
+  previous_time : Int?
+  time : Int
+  delta : Int
+  is_late : Bool
+  is_gap : Bool
+} derive(Debug)
+
+///|
+/// Detects late samples and excessive timestamp gaps without retaining a
+/// stream. The latest in-order timestamp is never moved backwards, making
+/// observations deterministic for out-of-order telemetry.
+pub(all) struct TimestampMonitor {
+  max_gap : Int
+  mut last_time : Int?
+} derive(Debug)
+
+///|
+pub fn TimestampMonitor::new(max_gap : Int) -> TimestampMonitor {
+  { max_gap: if max_gap < 0 { 0 } else { max_gap }, last_time: None }
+}
+
+///|
+pub fn TimestampMonitor::observe(
+  self : TimestampMonitor,
+  sample : Sample,
+) -> TimingObservation {
+  match self.last_time {
+    None => {
+      self.last_time = Some(sample.time)
+      {
+        previous_time: None,
+        time: sample.time,
+        delta: 0,
+        is_late: false,
+        is_gap: false,
+      }
+    }
+    Some(previous) => {
+      let late = sample.time < previous
+      let delta = if late { 0 } else { sample.time - previous }
+      if !late {
+        self.last_time = Some(sample.time)
+      }
+      {
+        previous_time: Some(previous),
+        time: sample.time,
+        delta,
+        is_late: late,
+        is_gap: !late && delta > self.max_gap,
+      }
+    }
+  }
+}
+
+///|
+pub fn TimestampMonitor::reset(self : TimestampMonitor) -> Unit {
+  self.last_time = None
+}
+
+///|
 pub(all) enum ChangeDirection {
   Rising
   Falling

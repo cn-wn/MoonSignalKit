@@ -1,39 +1,60 @@
-# 验收证据
+# Acceptance evidence
 
-## 当前工具链验收命令
+## Reproducible quality gates
 
-CI 明确执行 `moon check --target all`、`moon fmt --check`、`moon info` 加
-`.mbti` 无差异检查，以及四个后端的 `moon test`。当前 MoonBit CLI 不再提供
-`fmt/info --deny-warn`；以上是当前版本实际支持的等价严格流程。
+The repository CI explicitly runs formatting, generated-interface, warning-free
+checks, and tests. With MoonBit 0.10.4, run:
 
-## 扩展能力验证
+```bash
+moon fmt --check
+moon check --deny-warn --target all
+moon info && git diff --exit-code -- '*.mbti'
+moon test --deny-warn --target all
+moon run cmd/main
+moon run cmd/bench
+```
 
-- `RollingWindow` 对固定长度窗口进行 O(1) 追加、按时间顺序淘汰，并提供稳定摘要；
-- 精确分位数/中位数在受限窗口内计算，复杂度只与窗口大小有关；
-- EWMA 与中位数滤波器覆盖平滑和尖峰抑制；
-- CSV 往返与错误行号由单元测试覆盖；
-- `cmd/bench` 可复现 100,000 样本持续遥测场景，且流式状态不保留历史样本。
+Older acceptance wording names `moon fmt --deny-warn` and
+`moon info --deny-warn`. The current CLI no longer exposes these flags. CI uses
+them when they are available and otherwise uses the current non-mutating,
+equivalent checks above.
 
-## 正确性
+## Functional boundary
 
-- 在线统计与批量统计对照测试覆盖均值、方差、极值。
-- CUSUM 覆盖噪声抑制、持续上升和持续下降。
-- 移动平均覆盖前缀窗口与稳定窗口。
-- 空序列、单样本和 JSON 事件均有边界测试。
+MoonSignalKit is a portable telemetry-analysis library, not a full audio DSP,
+FFT, visualization, storage, or network stack. Its production-facing boundary
+is intentionally focused on reusable numerical components:
 
-## 性能模型
+- batch series summaries, transformations, rates, peaks, and Z-score outliers;
+- bounded rolling windows with chronological eviction and exact quantiles;
+- EWMA and median filtering;
+- resilient `time,value` CSV import/export;
+- O(1)-memory online statistics and two-sided CUSUM change events; and
+- timestamp gap and out-of-order sample detection without moving a timing
+  baseline backwards.
 
-| 能力 | 时间 | 额外内存 |
+Tests cover empty inputs, bounded eviction, quantiles, CSV errors, online versus
+batch agreement, CUSUM noise/change paths, and timestamp gaps/late arrivals.
+
+## Complexity and benchmark contract
+
+| Operation | Time | Extra memory |
 | --- | --- | --- |
-| 在线统计单次更新 | O(1) | O(1) |
-| CUSUM 单次检测 | O(1) | O(1) |
-| n 点移动平均 | O(n) | O(n) 输出 |
-| 批量摘要 | O(n) | O(1) |
+| Online moments update | O(1) | O(1) |
+| CUSUM update | O(1) | O(1) |
+| Timestamp observation | O(1) | O(1) |
+| EWMA update | O(1) | O(1) |
+| Rolling push | O(1) | O(window) |
+| Exact rolling quantile | O(window log window) | O(window) |
 
-运行 `moon run cmd/bench` 可处理 100,000 个确定性样本。输出中的
-`retained_samples=0` 表示在线统计和检测器不保留原始样本。
+`moon run cmd/bench` processes 100,000 deterministic samples. The benchmark
+retains a configured 256-sample rolling window, so the published output must
+report `retained_samples=256` after warm-up. Online moments and CUSUM themselves
+do not retain historical raw samples. See [BENCHMARK.md](BENCHMARK.md).
 
-## 可移植性
+## Portability
 
-GitHub Actions 对 Native、JavaScript、Wasm 和 Wasm-GC 分别执行检查与测试。
-核心模块没有文件系统、浏览器、网络和 FFI 依赖。
+The GitHub Actions matrix exercises Native, JavaScript, Wasm, and Wasm-GC. The
+core package deliberately has no platform I/O or FFI dependency, allowing one
+API to run in servers, command-line tools, embedded-style simulations, and Web
+assembly views.

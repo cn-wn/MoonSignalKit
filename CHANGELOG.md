@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0 - 2026-07-17
+
+### Added
+
+- Added `TimestampMonitor` and `TimingObservation` for deterministic late
+  sample and sampling-gap handling in streaming telemetry.
+- Added a documented, reproducible 100,000-sample benchmark contract.
+
+### Changed
+
+- Added copyable `moon add`, import, and minimal-call instructions to both
+  package and repository READMEs.
+- Corrected the benchmark documentation: the configured rolling window retains
+  256 samples after warm-up; only online statistics and CUSUM are O(1)-memory.
+- Updated CI and executable package metadata for current MoonBit 0.10.4.
+
 ## 0.2.1 - 2026-07-06
 
 ### Changed
